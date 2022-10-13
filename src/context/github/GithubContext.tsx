@@ -5,7 +5,6 @@ import githubReducer, { ActionKind } from './GithubReducer'
 export interface GithubContextInterface {
   users: UserType[]
   loading: boolean
-  fetchUsers: () => void
 }
 
 const GithubContext = createContext<GithubContextInterface | undefined>(
@@ -22,12 +21,14 @@ interface Children {
 export const GithubProvider = ({ children }: Children) => {
   const initialState = {
     users: [],
-    loading: true,
+    loading: false,
   }
 
   const [state, dispatch] = useReducer(githubReducer, initialState)
 
+  //Get initial users (testing purposes)
   const fetchUsers = async () => {
+    setLoading()
     const response = await fetch(`${process.env.REACT_APP_GITHUB_URL}/users`, {
       headers: {
         Authorization: `token ${process.env.REACT_APP_GITHUB_TOKEN}`,
@@ -43,12 +44,18 @@ export const GithubProvider = ({ children }: Children) => {
     })
   }
 
+  const setLoading = () => {
+    dispatch({
+      type: ActionKind.SET_LOADING,
+      payload: [],
+    })
+  }
+
   return (
     <GithubContext.Provider
       value={{
         loading: state.loading,
         users: state.users,
-        fetchUsers,
       }}
     >
       {children}

@@ -3,6 +3,7 @@ import { UserType } from '../../components/users/UserResults'
 
 export enum ActionKind {
   GET_USERS = 'GET_USERS',
+  SET_LOADING = 'SET_LOADING',
 }
 
 interface Action {
@@ -22,6 +23,11 @@ const githubReducer = (state: GithubReducerState, action: Action) => {
         ...state,
         users: action.payload,
         loading: false,
+      }
+    case ActionKind.SET_LOADING:
+      return {
+        ...state,
+        loading: true,
       }
     default:
       return state
