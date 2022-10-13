@@ -1,5 +1,6 @@
-import { createContext, useState, useContext } from 'react'
+import { createContext, useReducer, useContext } from 'react'
 import { UserType } from '../../components/users/UserResults'
+import githubReducer, { ActionKind } from './GithubReducer'
 
 export interface GithubContextInterface {
   users: UserType[]
@@ -19,8 +20,12 @@ interface Children {
 }
 
 export const GithubProvider = ({ children }: Children) => {
-  const [users, setUsers] = useState<UserType[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const initialState = {
+    users: [],
+    loading: true,
+  }
+
+  const [state, dispatch] = useReducer(githubReducer, initialState)
 
   const fetchUsers = async () => {
     const response = await fetch(`${process.env.REACT_APP_GITHUB_URL}/users`, {
@@ -29,18 +34,20 @@ export const GithubProvider = ({ children }: Children) => {
       },
     })
 
-    const data = await response.json()
+    const data: UserType[] = await response.json()
     console.log(data)
 
-    setUsers(data)
-    setLoading(false)
+    dispatch({
+      type: ActionKind.GET_USERS,
+      payload: data,
+    })
   }
 
   return (
     <GithubContext.Provider
       value={{
-        loading,
-        users,
+        loading: state.loading,
+        users: state.users,
         fetchUsers,
       }}
     >
